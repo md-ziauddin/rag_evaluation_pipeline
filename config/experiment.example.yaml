@@ -1,0 +1,25 @@
+# Example experiment definition. The experiment runner (Milestone 8) expands the
+# `matrix` into one run per combination, logging each to MLflow. Keep the axes small
+# at first — the full cross-product grows quickly.
+
+experiment:
+  name: retrieval-strategy-sweep-pubmedqa
+  dataset: pubmedqa            # pubmedqa (IR metrics) | medqa (end-to-end MCQ accuracy)
+  seed: 42
+
+matrix:
+  vectorstore: [qdrant, weaviate]
+  embedding_model:
+    - amazon.titan-embed-text-v2:0
+    - BAAI/bge-large-en-v1.5
+  chunking:
+    - { strategy: recursive, chunk_size: 512, chunk_overlap: 64 }
+    - { strategy: semantic }
+  retrieval:
+    - { strategy: dense, top_k: 20 }
+    - { strategy: hybrid, top_k: 50, rerank_top_n: 8 }
+
+metrics:
+  retrieval: [precision@5, recall@10, mrr, map, ndcg@10, hit_rate]
+  answer: [faithfulness, answer_relevance, context_precision, context_recall]
+  systems: [index_build_s, query_latency_ms, rerank_latency_ms, tokens, cost_usd, peak_memory_mb]

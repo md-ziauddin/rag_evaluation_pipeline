@@ -1,0 +1,107 @@
+# Declarative project + tooling config. No implementation logic lives here.
+# Version constraints are lower bounds; exact pins / a lockfile are produced in
+# Milestone 0 (see docs/planning/roadmap.md). Heavy local-model dependencies
+# (torch, sentence-transformers) live in the optional "local" extra so the
+# Bedrock-default path stays lightweight.
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rag-eval"
+version = "0.0.0"
+description = "Production RAG pipeline and retrieval-strategy evaluation harness for the medical domain."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+
+dependencies = [
+  # Orchestration
+  "langchain>=0.3",
+  "langchain-core>=0.3",
+  "langchain-community>=0.3",
+  "langchain-aws>=0.2",            # ChatBedrockConverse, BedrockEmbeddings, Bedrock rerank
+  "langchain-text-splitters>=0.3",
+  # Vector stores (clients only; servers run in containers)
+  "qdrant-client>=1.12",
+  "weaviate-client>=4.9",
+  "langchain-qdrant>=0.2",
+  "langchain-weaviate>=0.0.3",
+  # AWS
+  "boto3>=1.35",
+  # Sparse / lexical baseline
+  "rank-bm25>=0.2.2",
+  # Datasets
+  "datasets>=3.0",
+  "huggingface-hub>=0.26",
+  # API
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+  # Config, tracking, data
+  "pyyaml>=6.0",
+  "mlflow>=2.17",
+  "pandas>=2.2",
+  "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+# Local open-source embeddings, rerankers, and LLMs (GPU strongly recommended).
+local = [
+  "sentence-transformers>=3.3",
+  "transformers>=4.46",
+  "torch>=2.5",
+  "FlagEmbedding>=1.3",           # BGE reranker family
+]
+# Retrieval-quality and RAG-answer evaluation libraries.
+eval = [
+  "ranx>=0.3.20",                 # TREC-standard IR metrics (nDCG, MAP, MRR, ...)
+  "ragas>=0.2",                   # faithfulness, context precision/recall, ...
+]
+# Optional medical-aware sentence segmentation for chunking experiments.
+medical = [
+  "scispacy>=0.5.5",
+  "spacy>=3.7",
+]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "pytest-cov>=6.0",
+  "pytest-mock>=3.14",
+  "httpx>=0.27",                  # FastAPI TestClient
+  "testcontainers>=4.8",          # dockerized Qdrant/Weaviate in integration tests
+  "moto>=5.0",                    # mock Bedrock/boto3 in unit tests
+  "locust>=2.32",                 # load tests
+  "ruff>=0.7",
+  "mypy>=1.13",
+  "bandit>=1.7",
+  "pip-audit>=2.7",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "C4"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["rag_eval"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "unit: fast, no external services",
+  "integration: requires dockerized Qdrant/Weaviate/MLflow",
+  "e2e: full pipeline on a tiny fixture corpus",
+]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["src/rag_eval"]
+branch = true

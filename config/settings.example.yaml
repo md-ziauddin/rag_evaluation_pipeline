@@ -1,0 +1,51 @@
+# Example runtime settings. Copy to config/settings.yaml (gitignored via config/*.yaml
+# if you prefer) and adjust. Secrets never live here — they come from .env / AWS profile.
+# This is the schema the pydantic-settings models validate against (built in Milestone 0).
+
+providers:
+  embedding: bedrock          # bedrock | local
+  llm: bedrock                # bedrock | local
+  reranker: bedrock           # bedrock | local | none
+
+bedrock:
+  region: us-east-1
+  embedding_model_id: amazon.titan-embed-text-v2:0
+  llm_model_id: anthropic.claude-sonnet-5
+  rerank_model_id: amazon.rerank-v1:0
+
+local_models:
+  embedding: BAAI/bge-large-en-v1.5
+  llm: Qwen/Qwen2.5-7B-Instruct
+  reranker: BAAI/bge-reranker-v2-m3
+
+vectorstores:
+  qdrant:
+    url: http://localhost:6333
+    collection: pubmedqa
+  weaviate:
+    url: http://localhost:8080
+    grpc_url: localhost:50051
+    class_name: PubMedQA
+
+chunking:
+  strategy: recursive          # fixed | recursive | semantic | markdown | sentence | token | medical
+  chunk_size: 512              # tokens
+  chunk_overlap: 64
+  parent_child: false
+
+retrieval:
+  strategy: hybrid             # dense | bm25 | hybrid | ensemble | multi_query | self_query | parent_document
+  top_k: 50                    # first-stage candidates
+  rerank_top_n: 8              # after cross-encoder / Bedrock rerank
+  hybrid_alpha: 0.5            # Weaviate native hybrid weight (0=BM25, 1=vector)
+  fusion: rrf                  # rrf | dbsf  (Qdrant native hybrid fusion)
+  contextual_compression: false
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  log_level: INFO
+
+tracking:
+  mlflow_uri: http://localhost:5000
+  experiment_name: rag-eval

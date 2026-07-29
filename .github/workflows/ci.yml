@@ -1,0 +1,56 @@
+# CI skeleton. Jobs are wired but tolerant while the codebase is empty
+# (see the `|| true` / `continue-on-error` markers). Tighten them into hard
+# gates as each area lands — the exit-criteria are tracked in docs/engineering/cicd.md.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: pip install -e ".[dev,eval]"
+      - name: Lint
+        run: ruff check src tests
+      - name: Format check
+        run: ruff format --check src tests
+      - name: Type check
+        run: mypy || true            # gate hardens once typing lands
+      - name: Unit tests + coverage
+        run: pytest -m unit --cov --cov-report=xml
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install audit tools
+        run: pip install bandit pip-audit
+      - name: Bandit (SAST)
+        run: bandit -q -r src || true
+      - name: Dependency audit
+        run: pip-audit || true
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose file
+        run: docker compose config
+      # - name: Build API image        # enable once the Dockerfile exists (Milestone 6)
+      #   run: docker build -t rag-eval-api .
