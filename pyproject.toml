@@ -17,18 +17,14 @@ requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 
 dependencies = [
-  # Orchestration
-  "langchain>=0.3",
-  "langchain-core>=0.3",
-  "langchain-community>=0.3",
-  "langchain-aws>=0.2",            # ChatBedrockConverse, BedrockEmbeddings, Bedrock rerank
-  "langchain-text-splitters>=0.3",
-  # Vector stores (clients only; servers run in containers)
+  # Orchestration — graph-native. Retrieval strategies are hand-rolled nodes/functions
+  # over the SDKs below, not framework retriever classes. See ADR 0013 (supersedes
+  # ADR 0001, which picked LangChain).
+  "langgraph>=0.2",
+  # Vector stores (direct SDK clients; servers run in containers)
   "qdrant-client>=1.12",
   "weaviate-client>=4.9",
-  "langchain-qdrant>=0.2",
-  "langchain-weaviate>=0.0.3",
-  # AWS
+  # AWS — direct Bedrock Runtime calls: embeddings, chat/generation, rerank
   "boto3>=1.35",
   # Sparse / lexical baseline
   "rank-bm25>=0.2.2",
