@@ -8,6 +8,10 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/rag_eval"]
+
+
 [project]
 name = "rag-eval"
 version = "0.0.0"
@@ -20,6 +24,7 @@ dependencies = [
   # Orchestration — graph-native. Retrieval strategies are hand-rolled nodes/functions
   # over the SDKs below, not framework retriever classes. See ADR 0013 (supersedes
   # ADR 0001, which picked LangChain).
+  "langchain-community>=0.3",
   "langgraph>=0.2",
   # Vector stores (direct SDK clients; servers run in containers)
   "qdrant-client>=1.12",
