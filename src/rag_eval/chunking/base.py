@@ -1,20 +1,22 @@
-from abc import abstractmethod, ABC
-from typing import Any, Dict, List
-from rag_eval.chunking.data_contract import Document, Chunk
+from abc import ABC, abstractmethod
+from typing import Any
+
+from rag_eval.chunking.data_contract import Chunk, Document
+
 
 class BaseChunker(ABC):
     """
     Abstract Base Class for all chunking strategies.
-    
-    Every chunker strategy (Fixed, Recursive, Medical Section-Aware, etc.) 
+
+    Every chunker strategy (Fixed, Recursive, Medical Section-Aware, etc.)
     must inherit from this class and implement the `chunk` method.
     """
 
     @abstractmethod
-    def chunk(self, document: Document) -> List[Chunk]:
+    def chunk(self, document: Document) -> list[Chunk]:
         """
         Splits a Document into a list of Chunk objects.
-        
+
         Must be implemented by all concrete chunking subclasses.
         """
         pass
@@ -26,24 +28,21 @@ class BaseChunker(ABC):
         chunk_index: int,
         start_char: int | None = None,
         end_char: int | None = None,
-        extra_metadata: Dict[str, Any] | None = None,
+        extra_metadata: dict[str, Any] | None = None,
     ) -> Chunk:
         """
         Helper method to construct a standard Chunk object.
-        
+
         Ensures consistent chunk_id formatting and metadata inheritance
         from the parent Document down to the Chunk.
         """
-
-        # 1. Inherit document metadata and merge any chunk-specific metadata
         chunk_metadata = {
             "source": document.source,
             "medical_specialty": document.medical_specialty,
-            **document.metadata, # Include parent document's extra metadata
-            **(extra_metadata or {}), # Merge chunk_level extra metadata
+            **document.metadata,
+            **(extra_metadata or {}),
         }
 
-        # 2 Construct deterministic chunk ID
         chunk_id = f"{document.doc_id}_c{chunk_index}"
 
         return Chunk(
@@ -53,9 +52,6 @@ class BaseChunker(ABC):
             chunk_index=chunk_index,
             start_char=start_char,
             end_char=end_char,
-            token_count=len(chunk_text.split()), # simple token count heuristic
-            metadata=chunk_metadata
-            
+            token_count=len(chunk_text.split()),
+            metadata=chunk_metadata,
         )
-
-    

@@ -21,15 +21,15 @@ this section for where we actually are.
 
 | Milestone | Status |
 |---|---|
-| M0 — Environment & scaffolding | **Done.** Repo tree, `pyproject.toml`, `docker-compose.yml`, CI workflow, config examples, `.env.example` all exist. Package dirs under `src/rag_eval/` are empty (`.gitkeep` only) — this is the scaffold, not the implementation. |
-| M0.5 — Design documentation | **Done.** Full 19-section design set written to `docs/` (gitignored, present locally). |
-| M0.6 — AI-OS (this system) | **Done.** `.ai/` created this session. |
-| M1 — Dataset pipeline | **Not started.** No loaders, no corpus builder, no PubMedQA qrels exist yet. |
-| M2–M9 | **Not started.** |
+| M0 — Environment & scaffolding | **Done.** Repo tree, `pyproject.toml`, `docker-compose.yml`, `src/rag_eval/config/settings.py`, `py.typed`, ruff/mypy/pytest setup complete. |
+| M0.5 — Design documentation | **Done.** Full 19-section design set written to `docs/`. |
+| M0.6 — AI-OS (this system) | **Done.** `.ai/` created. |
+| M1 — Dataset pipeline | **Next.** Ingestion loaders for PubMedQA/MedQA, corpus builder, qrels. |
+| M2 — Chunking | **Done.** `Document` & `Chunk` data contracts, `BaseChunker`, `RecursiveCharacterChunker`, `ChunkerFactory`, unit tests. |
+| M3–M9 | **Not started.** |
 
-**Current phase:** between M0 and M1. Scaffolding and design are complete; no application code
-exists yet. The `docker-compose.yml` stack (Qdrant, Weaviate, MLflow) has not been verified to
-actually start in this environment — that's the first thing to check before M1 work begins.
+**Current phase:** M1 (Dataset Pipeline). M0 and M2 are fully implemented and verified with passing unit tests.
+
 
 **Architecture note (2026-07-29):** the orchestration framework changed from LangChain to
 **LangGraph** — a full replacement, not an addition — before any implementation began. See

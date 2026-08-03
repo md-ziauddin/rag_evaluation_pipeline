@@ -1,8 +1,8 @@
 import pytest
-from rag_eval.chunking.data_contract import Document, Chunk
-from rag_eval.chunking.base import BaseChunker
-from rag_eval.chunking.recursive import RecursiveCharacterChunker
+
+from rag_eval.chunking.data_contract import Chunk, Document
 from rag_eval.chunking.factory import ChunkerFactory
+from rag_eval.chunking.recursive import RecursiveCharacterChunker
 
 
 @pytest.fixture
@@ -15,7 +15,7 @@ def sample_document() -> Document:
         "Diagnosis: Acute Inferior Myocardial Infarction.\n\n"
         "Treatment Plan:\n"
         "1. Immediate administration of Aspirin 325 mg and Clopidogrel 600 mg.\n"
-        "2. Transfer to Cardiac Catheterization Lab for emergency percutaneous coronary intervention (PCI).\n"
+        "2. Transfer to Cardiac Catheterization Lab for emergency PCI.\n"
         "3. Initiate intravenous unfractionated heparin protocol."
     )
     return Document(
@@ -39,7 +39,7 @@ def test_recursive_chunker_basic_split(sample_document: Document):
         assert chunk.doc_id == sample_document.doc_id
         assert chunk.chunk_id == f"doc_med_001_c{i}"
         assert chunk.chunk_index == i
-        assert len(chunk.text) <= 300  # Reasonable ceiling accounting for sentence bounds
+        assert len(chunk.text) <= 300
         assert chunk.metadata["source"] == "PubMedQA"
         assert chunk.metadata["medical_specialty"] == ["Cardiology", "Emergency Medicine"]
         assert chunk.metadata["author"] == "Dr. Smith"

@@ -1,35 +1,29 @@
-from typing import Any, Dict, Type
+from typing import Any
+
 from rag_eval.chunking.base import BaseChunker
 from rag_eval.chunking.recursive import RecursiveCharacterChunker
 
-class ChunkerFactory:
-    """
-    Factory class to dynamically instantiate chunkers based on strategy name.
-    """
 
-    _register: Dict[str, Type[BaseChunker]] = {
-        "recursive": RecursiveCharacterChunker
-        # Future strategies added here:
-        # "fixed": FixedSizeChunker,
-        # "medical_section": MedicalSectionChunker,
+class ChunkerFactory:
+    """Factory class to dynamically instantiate chunkers based on strategy name."""
+
+    _registry: dict[str, type[BaseChunker]] = {
+        "recursive": RecursiveCharacterChunker,
     }
 
     @classmethod
-    def register(cls, name: str, chunker_cls: Type[BaseChunker]) -> None:
+    def register(cls, name: str, chunker_cls: type[BaseChunker]) -> None:
         """Allows registering custom external chunking strategies at runtime."""
-        cls._register[name.lower()] = chunker_cls
+        cls._registry[name.lower()] = chunker_cls
 
     @classmethod
     def get_chunker(cls, name: str, **kwargs: Any) -> BaseChunker:
-        """
-        Instantiates and returns a chunker strategy by name.
-        
-        Example:
-            chunker = ChunkerFactory.get_chunker("recursive", chunk_size=500, chunk_overlap=50)
-        """
+        """Instantiates and returns a chunker strategy by name."""
         key = name.lower()
-        if key not in cls._register:
-            valid_keys = list(cls._register.keys())
-            raise ValueError(f"Unknown Chunking strategy '{name}'. Available strategies: {valid_keys}")
+        if key not in cls._registry:
+            valid_keys = list(cls._registry.keys())
+            raise ValueError(
+                f"Unknown Chunking strategy '{name}'. Available strategies: {valid_keys}"
+            )
 
-        return cls._register[key](**kwargs)
+        return cls._registry[key](**kwargs)
