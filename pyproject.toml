@@ -31,6 +31,8 @@ dependencies = [
   "weaviate-client>=4.9",
   # AWS — direct Bedrock Runtime calls: embeddings, chat/generation, rerank
   "boto3>=1.35",
+  # Groq API — high-speed inference
+  "groq>=0.9",
   # Sparse / lexical baseline
   "rank-bm25>=0.2.2",
   # Datasets
@@ -104,6 +106,7 @@ module = [
   "qdrant_client.*",
   "weaviate.*",
   "rank_bm25.*",
+  "groq.*",
 ]
 ignore_missing_imports = true
 

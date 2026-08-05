@@ -40,6 +40,12 @@ class Settings(BaseSettings):
         default="amazon.titan-embed-text-v2:0", description="Default embedding model ID"
     )
 
+    # Groq API Credentials & Defaults
+    GROQ_API_KEY: str | None = Field(default=None, description="Groq API Key")
+    GROQ_MODEL_ID: str = Field(
+        default="llama-3.3-70b-versatile", description="Default Groq LLM model ID"
+    )
+
     # Ingestion & Chunking Defaults
     DEFAULT_CHUNK_SIZE: int = Field(default=500, description="Default chunk size in characters")
     DEFAULT_CHUNK_OVERLAP: int = Field(
