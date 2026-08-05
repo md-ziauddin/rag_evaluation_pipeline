@@ -32,7 +32,7 @@ served. Full diagrams: `docs/architecture/system-architecture.md`.
 | 0010 | MLflow for experiment tracking | Self-hosted, open-source, system of record; LangSmith optional for tracing only | `docs/architecture/adr/0010-experiment-tracking-mlflow.md` |
 | 0011 | `ranx` + `ragas` for evaluation | Two distinct metric layers (IR vs. answer quality) need two distinct, correct tools | `docs/architecture/adr/0011-evaluation-libraries.md` |
 | 0012 | PubMedQA → IR metrics, MedQA → end-to-end MCQ accuracy | MedQA has no per-passage relevance labels; treating them the same fabricates rigor | `docs/architecture/adr/0012-dataset-roles.md` |
-| 0013 | **LangGraph replaces LangChain entirely** (supersedes 0001) | Every retrieval strategy hand-built as a LangGraph node/function over raw Bedrock/Qdrant/Weaviate SDKs — no framework retriever classes, decided before implementation began | `docs/architecture/adr/0013-langgraph-replaces-langchain.md` |
+| 0013 | **LangGraph for Agentic Orchestration alongside LangChain Core** | LangGraph handles stateful graphs, retry logic, and Agentic RAG loops while LangChain Core provides component primitives and prompt templates | `docs/architecture/adr/0013-langgraph-replaces-langchain.md` |
 
 If `docs/architecture/adr/` isn't present in your checkout, the "one-line reason" column above is
 the working constraint — treat it as binding until you can read the full record.

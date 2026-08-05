@@ -95,7 +95,7 @@ strict = true
 packages = ["rag_eval"]
 
 [[tool.mypy.overrides]]
-module = ["datasets.*"]
+module = ["datasets.*", "boto3.*", "botocore.*", "torch.*", "sentence_transformers.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
