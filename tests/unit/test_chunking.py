@@ -1,8 +1,8 @@
 import pytest
 
-from rag_eval.chunking.data_contract import Chunk, Document
 from rag_eval.chunking.factory import ChunkerFactory
 from rag_eval.chunking.recursive import RecursiveCharacterChunker
+from rag_eval.chunking.schemas import Chunk, Document
 
 
 @pytest.fixture

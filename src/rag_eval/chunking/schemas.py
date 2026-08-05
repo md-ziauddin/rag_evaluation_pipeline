@@ -1,11 +1,12 @@
 from datetime import date
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 
 class Document(BaseModel):
     """
-    Represents a full raw input document (e.g. a PubMed article or clinical guideline)
+    Represents a full raw input documsent (e.g. a PubMed article or clinical guideline)
     before it gets split into chunks.
 
     # TODO: Implement PII/PHI scrubbing (de-identification) at the Document ingestion layer

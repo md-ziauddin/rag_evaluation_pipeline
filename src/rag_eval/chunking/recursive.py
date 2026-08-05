@@ -1,5 +1,5 @@
 from rag_eval.chunking.base import BaseChunker
-from rag_eval.chunking.data_contract import Chunk, Document
+from rag_eval.chunking.schemas import Chunk, Document
 
 
 class RecursiveCharacterChunker(BaseChunker):
