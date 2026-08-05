@@ -24,7 +24,9 @@ class Settings(BaseSettings):
 
     # Infrastructure Services (Vector DBs & Tracking)
     QDRANT_URL: str = Field(default="http://localhost:6333", description="Qdrant REST API URL")
+    QDRANT_API_KEY: str | None = Field(default=None, description="Qdrant API Key")
     WEAVIATE_URL: str = Field(default="http://localhost:8080", description="Weaviate REST API URL")
+    WEAVIATE_API_KEY: str | None = Field(default=None, description="Weaviate API Key")
     MLFLOW_TRACKING_URI: str = Field(
         default="http://localhost:5000", description="MLflow tracking server URI"
     )

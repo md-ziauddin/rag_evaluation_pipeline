@@ -12,7 +12,7 @@ try:
 
     HAS_TORCH = True
 except ImportError:
-    torch = None
+    torch = None  # type: ignore[assignment]
     HAS_TORCH = False
 
 try:
@@ -20,7 +20,7 @@ try:
 
     HAS_SENTENCE_TRANSFORMERS = True
 except ImportError:
-    SentenceTransformer = None
+    SentenceTransformer = None  # type: ignore[misc]
     HAS_SENTENCE_TRANSFORMERS = False
 
 from rag_eval.embeddings.base import BaseEmbeddingProvider

@@ -31,6 +31,7 @@ services:
       DEFAULT_VECTORIZER_MODULE: none        # vectors are computed by the pipeline, not Weaviate
       ENABLE_MODULES: ""
       QUERY_DEFAULTS_LIMIT: "25"
+      CLUSTER_HOSTNAME: "node1"
     volumes:
       - ./volumes/weaviate:/var/lib/weaviate
     healthcheck:
