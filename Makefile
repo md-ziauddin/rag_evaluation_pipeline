@@ -1,7 +1,7 @@
 # Thin wrappers around the real tools. Targets are placeholders where the
 # underlying scripts do not exist yet (they arrive with their milestones).
 .DEFAULT_GOAL := help
-.PHONY: help up down logs lint format typecheck test test-int eval security
+.PHONY: help up down logs lint format typecheck test test-int eval security check
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -26,7 +26,10 @@ typecheck: ## Static type check
 	mypy
 
 test: ## Run unit tests
-	pytest -m unit
+	pytest
+
+check: ## Run lint, format, and unit tests in one command
+	./scripts/check.sh
 
 test-int: ## Run integration tests (needs `make up`)
 	pytest -m integration

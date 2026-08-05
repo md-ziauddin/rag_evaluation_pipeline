@@ -53,13 +53,14 @@ class PubMedQALoader(BaseDatasetLoader):
 
             contexts = item.get("context", {})
             if isinstance(contexts, dict):
-                passages = contexts.get("contexts", contexts.get("passages", []))
-                labels = contexts.get("labels", [])
-                meshes = contexts.get("meshes", [])
+                raw_passages = contexts.get("contexts") or contexts.get("passages") or []
+                passages = raw_passages if isinstance(raw_passages, list) else [str(raw_passages)]
+                labels = contexts.get("labels") or []
+                meshes = contexts.get("meshes") or []
             elif isinstance(contexts, list):
                 passages = contexts
                 labels = []
-                meshes = item.get("meshes", [])
+                meshes = item.get("meshes") or []
             else:
                 passages = [str(contexts)] if contexts else []
                 labels = []
