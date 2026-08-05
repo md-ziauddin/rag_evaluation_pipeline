@@ -107,6 +107,7 @@ module = [
   "weaviate.*",
   "rank_bm25.*",
   "groq.*",
+  "yaml.*",
 ]
 ignore_missing_imports = true
 
