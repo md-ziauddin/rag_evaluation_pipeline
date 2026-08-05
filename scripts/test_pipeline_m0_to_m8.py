@@ -37,7 +37,7 @@ def main():
     print(f"[M1 Ingestion] Loaded Document ID: {sample_doc.id}")
 
     # Step 3: M8 Matrix Expansion
-    exp_config = Path(__file__).resolve().parent.parent / "config" / "experiment.example.yaml"
+    exp_config = Path(__file__).resolve().parent.parent / "config" / "experiment.yaml"
     print(f"\n[M8 Matrix Expander] Reading experiment config: {exp_config}")
 
     expander = MatrixExpander(config_path=exp_config)

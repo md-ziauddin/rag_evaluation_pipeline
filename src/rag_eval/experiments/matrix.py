@@ -21,11 +21,16 @@ class MatrixExpander:
         self.raw_config = self._load_config()
 
     def _load_config(self) -> dict[str, Any]:
-        """Read and parse YAML experiment config file."""
-        if not self.config_path.exists():
-            raise FileNotFoundError(f"Experiment config file not found at: {self.config_path}")
+        """Read and parse YAML experiment config file with example fallback."""
+        target_path = self.config_path
+        if not target_path.exists():
+            example_path = target_path.parent / "experiment.example.yaml"
+            if example_path.exists():
+                target_path = example_path
+            else:
+                raise FileNotFoundError(f"Experiment config file not found at: {self.config_path}")
 
-        with open(self.config_path, encoding="utf-8") as f:
+        with open(target_path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         return dict(data)
 
