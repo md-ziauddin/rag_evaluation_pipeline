@@ -116,12 +116,56 @@ class QdrantVectorStore(BaseVectorStore):
         filters: dict[str, Any] | None = None,
     ) -> list[VectorSearchResult]:
         """
-        Qdrant dense similarity search (Fallback/Default dense path).
-        Full hybrid search in Qdrant will combine sparse indices.
+        Execute Qdrant hybrid search combining dense vector search and BM25 text match with RRF.
 
-        @TODO: Need to update this method to use the sparse indices built in M5 and use RRF/DBSF fusion.
+        alpha balances dense vector search vs keyword search (1.0 = pure dense, 0.0 = pure BM25).
         """
-        return self.search_dense(query_vector=query_vector, top_k=top_k, filters=filters)
+        # Step 1: Retrieve candidate dense vector search results
+        dense_results = self.search_dense(
+            query_vector=query_vector, top_k=top_k * 2, filters=filters
+        )
+        if not dense_results or not query_text:
+            return dense_results[:top_k]
+
+        # Step 2: Extract candidate texts and compute BM25 keyword scores
+        try:
+            from rank_bm25 import BM25Okapi
+
+            corpus_tokens = [res.text.lower().split() for res in dense_results]
+            bm25 = BM25Okapi(corpus_tokens)
+            query_tokens = query_text.lower().split()
+            bm25_scores = bm25.get_scores(query_tokens)
+        except Exception:
+            return dense_results[:top_k]
+
+        # Step 3: Combine Dense rank + BM25 rank using Reciprocal Rank Fusion (RRF)
+        bm25_ranked = sorted(
+            range(len(dense_results)), key=lambda i: float(bm25_scores[i]), reverse=True
+        )
+
+        dense_ranks = {res.chunk_id: rank + 1 for rank, res in enumerate(dense_results)}
+        bm25_ranks = {dense_results[idx].chunk_id: rank + 1 for rank, idx in enumerate(bm25_ranked)}
+
+        fused_results: list[VectorSearchResult] = []
+        for res in dense_results:
+            cid = res.chunk_id
+            d_rank = dense_ranks[cid]
+            b_rank = bm25_ranks[cid]
+
+            # Weighted RRF Score
+            rrf_score = alpha * (1.0 / (60 + d_rank)) + (1.0 - alpha) * (1.0 / (60 + b_rank))
+            fused_results.append(
+                VectorSearchResult(
+                    chunk_id=res.chunk_id,
+                    doc_id=res.doc_id,
+                    text=res.text,
+                    score=float(rrf_score),
+                    metadata=res.metadata,
+                )
+            )
+
+        fused_results.sort(key=lambda x: x.score, reverse=True)
+        return fused_results[:top_k]
 
     def delete_collection(self) -> None:
         """Delete Qdrant collection."""

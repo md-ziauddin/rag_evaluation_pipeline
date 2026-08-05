@@ -104,6 +104,36 @@ class TestQdrantVectorStore:
         assert results[0].score == 0.88
 
     @patch("rag_eval.vector_stores.qdrant_store.QdrantClient")
+    def test_search_hybrid(self, mock_qdrant_class):
+        mock_client = MagicMock()
+        mock_point1 = MagicMock()
+        mock_point1.id = "c1"
+        mock_point1.score = 0.88
+        mock_point1.payload = {
+            "chunk_id": "c1",
+            "doc_id": "d1",
+            "text": "Asthma inhalers treatment",
+        }
+
+        mock_point2 = MagicMock()
+        mock_point2.id = "c2"
+        mock_point2.score = 0.65
+        mock_point2.payload = {"chunk_id": "c2", "doc_id": "d2", "text": "Diabetes insulin therapy"}
+
+        mock_response = MagicMock()
+        mock_response.points = [mock_point1, mock_point2]
+        mock_client.query_points.return_value = mock_response
+        mock_qdrant_class.return_value = mock_client
+
+        store = QdrantVectorStore(collection_name="test_col", dimension=2)
+        results = store.search_hybrid(
+            query_text="asthma inhalers", query_vector=[0.1, 0.2], top_k=2
+        )
+
+        assert len(results) == 2
+        assert results[0].chunk_id == "c1"
+
+    @patch("rag_eval.vector_stores.qdrant_store.QdrantClient")
     def test_delete_collection(self, mock_qdrant_class):
         mock_client = MagicMock()
         mock_client.collection_exists.return_value = True
