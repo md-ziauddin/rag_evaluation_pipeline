@@ -78,8 +78,13 @@ class TestComparisonReporter:
 class TestExperimentRunner:
     """Tests for ExperimentRunner."""
 
+    @patch("rag_eval.vector_stores.qdrant_store.QdrantClient")
     @patch("rag_eval.experiments.runner.RAGEvaluator")
-    def test_run_sweep(self, mock_evaluator_class):
+    def test_run_sweep(self, mock_evaluator_class, mock_qdrant_class):
+        mock_qdrant_client = MagicMock()
+        mock_qdrant_client.collection_exists.return_value = True
+        mock_qdrant_class.return_value = mock_qdrant_client
+
         mock_evaluator = MagicMock()
         mock_evaluator.evaluate_pipeline.return_value = {
             "run_id": "run-123",

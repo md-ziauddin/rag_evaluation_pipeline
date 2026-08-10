@@ -63,3 +63,14 @@ Thumbs.db
 # ---- Markdown ----
 Plan.md
 /docs
+
+# ---- AI Agent Configurations ----
+.ai/
+AGENTS.md
+AGENTS.MD
+Agents.md
+agents.md
+GEMINI.md
+GEMINI.MD
+Gemini.md
+gemini.md
