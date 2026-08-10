@@ -2,9 +2,11 @@ name: Medical RAG Evaluation Pipeline CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   quality-and-test-gates:
