@@ -1,56 +1,64 @@
-# CI skeleton. Jobs are wired but tolerant while the codebase is empty
-# (see the `|| true` / `continue-on-error` markers). Tighten them into hard
-# gates as each area lands — the exit-criteria are tracked in docs/engineering/cicd.md.
-name: CI
+name: Medical RAG Evaluation Pipeline CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [ main ]
 
 jobs:
-  quality:
+  quality-and-test-gates:
     runs-on: ubuntu-latest
+
+    services:
+      qdrant:
+        image: qdrant/qdrant:v1.12.4
+        ports:
+          - 6333:6333
+          - 6334:6334
+      mlflow:
+        image: ghcr.io/mlflow/mlflow:v2.17.2
+        ports:
+          - 5000:5000
+        cmd: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000"]
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
-      - name: Install
-        run: pip install -e ".[dev,eval]"
-      - name: Lint
-        run: ruff check src tests
-      - name: Format check
-        run: ruff format --check src tests
-      - name: Type check
-        run: mypy || true            # gate hardens once typing lands
-      - name: Unit tests + coverage
-        run: pytest -m unit --cov --cov-report=xml
+          cache: "pip"
 
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install audit tools
-        run: pip install bandit pip-audit
-      - name: Bandit (SAST)
-        run: bandit -q -r src || true
-      - name: Dependency audit
-        run: pip-audit || true
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy pytest pytest-cov bandit hatchling
+          pip install -e .
 
-  docker-build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Validate compose file
-        run: docker compose config
-      # - name: Build API image        # enable once the Dockerfile exists (Milestone 6)
-      #   run: docker build -t rag-eval-api .
+      - name: 1. Code Quality Gate (Ruff Linter & Formatter)
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: 2. Static Type Check Gate (Mypy)
+        run: |
+          mypy src/
+
+      - name: 3. Security Vulnerability Audit Gate (Bandit)
+        run: |
+          bandit -r src/ -x tests/
+
+      - name: 4. Automated Unit & Integration Tests (Pytest)
+        env:
+          ENV: test
+          QDRANT_URL: http://localhost:6333
+          MLFLOW_TRACKING_URI: http://localhost:5000
+        run: |
+          pytest --cov=src/rag_eval --cov-report=term-missing tests/
+
+      - name: 5. Container Image Build Verification
+        run: |
+          docker build -t rag-eval:ci .

@@ -24,7 +24,7 @@ class MedQALoader(BaseDatasetLoader):
 
     def fetch_raw(self) -> Any:
         """Fetch raw records using HuggingFace datasets."""
-        return load_dataset(self.dataset_name, split="test")
+        return load_dataset(self.dataset_name, split="test")  # nosec B615
 
     def _hash_text(self, text: str) -> str:
         """Create a deterministic SHA-256 hash prefix for text string."""

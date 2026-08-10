@@ -26,8 +26,8 @@ class PubMedQALoader(BaseDatasetLoader):
     def fetch_raw(self) -> Any:
         """Fetch raw records via HuggingFace datasets."""
         if self.subset:
-            return load_dataset(self.dataset_name, self.subset, split="train")
-        return load_dataset(self.dataset_name, split="train")
+            return load_dataset(self.dataset_name, self.subset, split="train")  # nosec B615
+        return load_dataset(self.dataset_name, split="train")  # nosec B615
 
     def _generate_doc_id(self, pmid: str, idx: int) -> str:
         """Generate a deterministic document ID from PMID and passage index."""

@@ -149,8 +149,10 @@ def log_physician_feedback(request: FeedbackRequest) -> dict[str, Any]:
         tracker.client.log_metric(request.run_id, "physician_rating", float(request.rating))
         if request.comments:
             tracker.client.log_param(request.run_id, "physician_comments", request.comments)
-    except Exception:
-        pass  # Fallback if run ID is offline
+    except Exception as e:
+        import logging
+
+        logging.warning("Failed to log physician feedback to MLflow: %s", e)
 
     return {
         "status": "success",
