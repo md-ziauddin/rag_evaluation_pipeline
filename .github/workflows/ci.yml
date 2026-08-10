@@ -41,8 +41,8 @@ jobs:
         run: |
           bandit -r src/ -x tests/
 
-      - name: 4. Automated Unit Tests (Pytest)
+      - name: 4. Automated Unit & Integration Tests (Pytest)
         env:
           ENV: test
         run: |
-          pytest --cov=src/rag_eval --ignore=tests/integration tests/unit/
+          pytest --cov=src/rag_eval tests/

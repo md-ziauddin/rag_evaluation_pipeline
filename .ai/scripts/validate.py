@@ -50,7 +50,8 @@ def check_file_index_paths() -> None:
                 # has a directory component — resolve relative to repo root
                 if (REPO_ROOT / candidate).exists():
                     continue
-                issues.append(f"FILE_INDEX.md references '{candidate}' but it does not exist on disk.")
+                msg = f"FILE_INDEX.md references '{candidate}' but it does not exist on disk."
+                issues.append(msg)
             else:
                 # bare filename (e.g. "README.md" meaning ".ai/README.md") — the
                 # index doesn't say which directory, so accept a match anywhere
@@ -61,7 +62,11 @@ def check_file_index_paths() -> None:
                     if ".git" not in _.parts and "node_modules" not in _.parts
                 )
                 if not found:
-                    issues.append(f"FILE_INDEX.md references '{candidate}' but it does not exist anywhere in the repo.")
+                    msg = (
+                        f"FILE_INDEX.md references '{candidate}' "
+                        "but it does not exist anywhere in the repo."
+                    )
+                    issues.append(msg)
 
 
 def check_session_log_matches_sessions_dir() -> None:
@@ -81,7 +86,8 @@ def check_session_log_matches_sessions_dir() -> None:
     referenced = set(re.findall(r"sessions/([\w.-]+\.md)", logged_text))
     for name in referenced:
         if name not in on_disk:
-            issues.append(f"SESSION_LOG.md references sessions/{name} but that file does not exist.")
+            msg = f"SESSION_LOG.md references sessions/{name} but that file does not exist."
+            issues.append(msg)
 
 
 def check_state_tasks_agree_on_milestone() -> None:
@@ -98,7 +104,9 @@ def check_state_tasks_agree_on_milestone() -> None:
     milestone_re = re.compile(r"\|\s*(M\d+(?:\.\d+)?)[^|]*\|\s*\*\*([A-Za-z ]+?)\*\*")
     state_status = {m: s.strip() for m, s in milestone_re.findall(state_text)}
 
-    epic_re = re.compile(r"\|\s*E\d+(?:\.\d+)?\s*—[^|]*\|\s*(M\d+(?:\.\d+)?)\s*\|\s*\*\*([A-Za-z ]+?)\*\*")
+    epic_re = re.compile(
+        r"\|\s*E\d+(?:\.\d+)?\s*—[^|]*\|\s*(M\d+(?:\.\d+)?)\s*\|\s*\*\*([A-Za-z ]+?)\*\*"
+    )
     tasks_status = {m: s.strip() for m, s in epic_re.findall(tasks_text)}
 
     for milestone, s_status in state_status.items():
@@ -108,9 +116,11 @@ def check_state_tasks_agree_on_milestone() -> None:
         s_done = s_status.lower().startswith("done")
         t_done = t_status.lower().startswith("done")
         if s_done != t_done:
-            issues.append(
-                f"STATE.md marks {milestone} as '{s_status}' but TASKS.md marks it as '{t_status}' — they disagree."
+            msg = (
+                f"STATE.md marks {milestone} as '{s_status}' but "
+                f"TASKS.md marks it as '{t_status}' — they disagree."
             )
+            issues.append(msg)
 
 
 def main() -> int:
