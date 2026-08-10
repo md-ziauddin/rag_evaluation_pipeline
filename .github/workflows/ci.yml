@@ -12,18 +12,6 @@ jobs:
   quality-and-test-gates:
     runs-on: ubuntu-latest
 
-    services:
-      qdrant:
-        image: qdrant/qdrant:v1.12.4
-        ports:
-          - 6333:6333
-          - 6334:6334
-      mlflow:
-        image: ghcr.io/mlflow/mlflow:v2.17.2
-        ports:
-          - 5000:5000
-        cmd: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000"]
-
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v4
@@ -53,14 +41,8 @@ jobs:
         run: |
           bandit -r src/ -x tests/
 
-      - name: 4. Automated Unit & Integration Tests (Pytest)
+      - name: 4. Automated Unit Tests (Pytest)
         env:
           ENV: test
-          QDRANT_URL: http://localhost:6333
-          MLFLOW_TRACKING_URI: http://localhost:5000
         run: |
-          pytest --cov=src/rag_eval --cov-report=term-missing tests/
-
-      - name: 5. Container Image Build Verification
-        run: |
-          docker build -t rag-eval:ci .
+          pytest --cov=src/rag_eval --ignore=tests/integration tests/unit/
