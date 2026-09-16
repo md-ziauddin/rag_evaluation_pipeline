@@ -17,12 +17,17 @@ class BedrockLLMProvider(BaseLLMProvider):
 
     def __init__(
         self,
-        model_name: str = "anthropic.claude-3-sonnet-20240229-v1:0",
+        model_name: str = "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         region_name: str | None = None,
         max_tokens: int = 1024,
         temperature: float = 0.0,
     ):
-        super().__init__(model_name=model_name, max_tokens=max_tokens, temperature=temperature)
+        resolved_name = model_name
+        if model_name.startswith("anthropic.") and not model_name.startswith(
+            ("us.", "eu.", "apac.", "arn:")
+        ):
+            resolved_name = f"us.{model_name}"
+        super().__init__(model_name=resolved_name, max_tokens=max_tokens, temperature=temperature)
         self.region_name = region_name or settings.AWS_REGION
         self.client = boto3.client("bedrock-runtime", region_name=self.region_name)
 

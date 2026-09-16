@@ -33,6 +33,15 @@ class Settings(BaseSettings):
 
     # AWS / Bedrock Credentials & Models
     AWS_REGION: str = Field(default="us-east-1", description="AWS Region for Bedrock calls")
+    AWS_ACCESS_KEY_ID: str | None = Field(default=None, description="AWS Access Key ID")
+    AWS_SECRET_ACCESS_KEY: str | None = Field(default=None, description="AWS Secret Access Key")
+    LLM_PROVIDER: str = Field(
+        default="bedrock", description="Default LLM provider ('bedrock' or 'groq')"
+    )
+    BEDROCK_LLM_MODEL_ID: str = Field(
+        default="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        description="Default Bedrock LLM model ID",
+    )
     DEFAULT_EMBEDDING_PROVIDER: str = Field(
         default="bedrock", description="Default provider ('bedrock' or 'local')"
     )
@@ -43,7 +52,7 @@ class Settings(BaseSettings):
     # Groq API Credentials & Defaults
     GROQ_API_KEY: str | None = Field(default=None, description="Groq API Key")
     GROQ_MODEL_ID: str = Field(
-        default="llama-3.3-70b-versatile", description="Default Groq LLM model ID"
+        default="openai/gpt-oss-20b", description="Default Groq LLM model ID"
     )
 
     # Ingestion & Chunking Defaults

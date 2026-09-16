@@ -29,7 +29,7 @@ class QdrantVectorStore(BaseVectorStore):
     ):
         super().__init__(collection_name=collection_name, dimension=dimension)
         self.url = url
-        self.client = QdrantClient(url=self.url, api_key=api_key)
+        self.client = QdrantClient(url=self.url, api_key=api_key, check_compatibility=False)
 
     def create_collection(self, force_recreate: bool = False) -> None:
         """Create Qdrant collection with Cosine distance and HNSW index."""

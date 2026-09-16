@@ -78,9 +78,16 @@ class TestComparisonReporter:
 class TestExperimentRunner:
     """Tests for ExperimentRunner."""
 
+    @patch("rag_eval.experiments.runner.EmbeddingFactory.get_provider")
     @patch("rag_eval.vector_stores.qdrant_store.QdrantClient")
     @patch("rag_eval.experiments.runner.RAGEvaluator")
-    def test_run_sweep(self, mock_evaluator_class, mock_qdrant_class):
+    def test_run_sweep(self, mock_evaluator_class, mock_qdrant_class, mock_get_embed):
+        mock_embed = MagicMock()
+        mock_embed.dimension = 1024
+        mock_embed.embed_documents.return_value = [[0.1] * 1024]
+        mock_embed.embed_query.return_value = [0.1] * 1024
+        mock_get_embed.return_value = mock_embed
+
         mock_qdrant_client = MagicMock()
         mock_qdrant_client.collection_exists.return_value = True
         mock_qdrant_class.return_value = mock_qdrant_client

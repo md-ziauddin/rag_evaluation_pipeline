@@ -20,6 +20,11 @@ class MatrixExpander:
         self.config_path = Path(config_path)
         self.raw_config = self._load_config()
 
+    @property
+    def config(self) -> dict[str, Any]:
+        """Return raw parsed configuration dictionary."""
+        return self.raw_config
+
     def _load_config(self) -> dict[str, Any]:
         """Read and parse YAML experiment config file with example fallback."""
         target_path = self.config_path

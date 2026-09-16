@@ -43,6 +43,7 @@ class ComparisonReporter:
             f"**Recommended Production Configuration**: `{top_run['run_name']}`",
             f"- **Vector Store**: `{top_run['params'].get('vectorstore', 'N/A')}`",
             f"- **Embedding Model**: `{top_run['params'].get('embedding_model', 'N/A')}`",
+            f"- **Retrieval Strategy**: `{top_run['params'].get('retrieval_strategy', 'N/A')}`",
             f"- **Orchestration**: `{top_run['params'].get('orchestration', 'N/A')}`",
             f"- **NDCG@10**: `{top_run['metrics'].get('ndcg_at_10', 0.0)}`",
             f"- **Faithfulness**: `{top_run['metrics'].get('faithfulness', 0.0)}`",
@@ -50,21 +51,22 @@ class ComparisonReporter:
             "",
             "## Matrix Benchmark Comparison Table",
             "",
-            "| Run Name | Vector Store | Embedding | Orchestration | MRR@10 | NDCG@10 | Faithfulness | Latency (ms) |",  # noqa: E501
-            "|---|---|---|---|---|---|---|---|",
+            "| Run Name | Vector Store | Embedding | Retrieval | Orchestration | MRR@10 | NDCG@10 | Faithfulness | Latency (ms) |",  # noqa: E501
+            "|---|---|---|---|---|---|---|---|---|",
         ]
 
         for r in sorted_runs:
             name = r["run_name"]
             vdb = r["params"].get("vectorstore", "N/A")
             emb = r["params"].get("embedding_model", "N/A").split("/")[-1]
+            strat = r["params"].get("retrieval_strategy", "N/A")
             orch = r["params"].get("orchestration", "N/A")
             mrr = r["metrics"].get("mrr_at_10", 0.0)
             ndcg = r["metrics"].get("ndcg_at_10", 0.0)
             faith = r["metrics"].get("faithfulness", 0.0)
             lat = r["metrics"].get("avg_latency_ms", 0.0)
 
-            row = f"| `{name}` | `{vdb}` | `{emb}` | `{orch}` | `{mrr}` | `{ndcg}` | `{faith}` | `{lat}` |"  # noqa: E501
+            row = f"| `{name}` | `{vdb}` | `{emb}` | `{strat}` | `{orch}` | `{mrr}` | `{ndcg}` | `{faith}` | `{lat}` |"  # noqa: E501
             report_lines.append(row)
 
         report_content = "\n".join(report_lines) + "\n"

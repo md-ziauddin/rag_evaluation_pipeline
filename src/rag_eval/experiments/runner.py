@@ -12,9 +12,10 @@ from rag_eval.embeddings.factory import EmbeddingFactory
 from rag_eval.evaluation.evaluator import RAGEvaluator
 from rag_eval.evaluation.tracker import MLflowTracker
 from rag_eval.generation.base import BaseLLMProvider
-from rag_eval.generation.groq_provider import GroqLLMProvider
+from rag_eval.generation.factory import LLMFactory
 from rag_eval.orchestration.agentic import AgenticRAGGraph
 from rag_eval.orchestration.linear import LinearRAGPipeline
+from rag_eval.retrieval.base import BaseRetriever
 from rag_eval.retrieval.bm25 import BM25Retriever
 from rag_eval.retrieval.dense import DenseRetriever
 from rag_eval.retrieval.ensemble import EnsembleRetriever
@@ -55,7 +56,11 @@ class ExperimentRunner:
         for idx, run_params in enumerate(expanded_runs, start=1):
             vdb_name = run_params.get("vectorstore", "db")
             orch_name = run_params.get("orchestration", "linear")
-            run_name = f"run_{idx}_{vdb_name}_{orch_name}"
+            strat_name = run_params.get("retrieval_strategy")
+            if strat_name:
+                run_name = f"run_{idx}_{vdb_name}_{strat_name}_{orch_name}"
+            else:
+                run_name = f"run_{idx}_{vdb_name}_{orch_name}"
             print(f"\n[M8 Runner] Executing Run {idx}/{len(expanded_runs)}: {run_name}...")
 
             # 1. Chunking Setup
@@ -94,13 +99,21 @@ class ExperimentRunner:
             vstore.index_chunks(chunks, vectors)
 
             # 4. Retrieval Setup
+            strat = str(run_params.get("retrieval_strategy", "hybrid")).lower()
             dense_ret = DenseRetriever(embed_provider=embed_provider, vector_store=vstore)
             bm25_ret = BM25Retriever(chunks=chunks)
-            retriever = EnsembleRetriever(retrievers=[dense_ret, bm25_ret], rrf_k=60)
+
+            retriever: BaseRetriever
+            if strat == "dense":
+                retriever = dense_ret
+            elif strat in ("bm25", "sparse"):
+                retriever = bm25_ret
+            else:
+                retriever = EnsembleRetriever(retrievers=[dense_ret, bm25_ret], rrf_k=60)
 
             # 5. LLM Provider
             try:
-                llm: BaseLLMProvider = GroqLLMProvider()
+                llm: BaseLLMProvider = LLMFactory.get_provider()
             except Exception:
                 llm = MockLLMProvider()
 

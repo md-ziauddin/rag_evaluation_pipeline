@@ -1,19 +1,40 @@
-# Claude Code — project instructions
+# Claude Code — Project Instructions
 
-This repository uses a cross-agent operating system so work done by Claude Code, Gemini CLI,
-Codex, and Cursor stays in sync without any of them sharing memory. Before writing any code,
-read and follow **[`.ai/BOOTSTRAP.md`](.ai/BOOTSTRAP.md)** in full — don't skip it because the
-task looks simple.
+Production Medical Retrieval-Augmented Generation (RAG) Architecture and Evaluation System.
 
-That procedure has you read `.ai/PROJECT.md`, `.ai/STATE.md`, `.ai/TASKS.md`, and
-`.ai/ARCHITECTURE.md`; check `.ai/FILE_INDEX.md` before creating any file; and produce a short
-plan before coding. It also defines exactly when to stop and ask instead of guessing.
+## Architecture & Code Structure
+- Core package: `src/rag_eval/`
+- Orchestration: Linear RAG pipeline (`rag_eval.orchestration.linear`) and LangGraph Agentic graph (`rag_eval.orchestration.agentic`)
+- LLM Generation: Prioritized fallback Bedrock > Groq via `LLMFactory` (`rag_eval.generation.factory`)
+- Vector Stores: Qdrant (`rag_eval.vector_stores.qdrant_store`) and Weaviate (`rag_eval.vector_stores.weaviate_store`)
+- Evaluation: 3-layer metrics with IR, Generation, and Systems metrics tracked in MLflow
+- REST Service: FastAPI application at `rag_eval.api.main:app`
 
-Before ending the session, run **[`.ai/SHUTDOWN.md`](.ai/SHUTDOWN.md)** in full. It updates the
-task board, file index, and changelog, and writes a session record under `.ai/sessions/` so the
-next agent — in this tool or a different one — can pick up without anyone re-explaining
-anything.
+## Quality Gates & Verification
+Always verify all changes against the project quality gates before committing:
 
-Hard constraints that apply on every task: **[`.ai/RULES.md`](.ai/RULES.md)**.
+```bash
+# 1. Formatting and linting
+ruff check .
+ruff format --check .
 
-Full system map: **[`.ai/README.md`](.ai/README.md)**.
+# 2. Static type checking
+mypy src/
+
+# 3. Security audit
+bandit -r src/
+
+# 4. Automated tests (unit + integration via testcontainers)
+pytest -v
+```
+
+Or run all verification gates with:
+```bash
+./scripts/check.sh
+```
+
+## Infrastructure
+Start microservices (Qdrant, Weaviate, MLflow, API):
+```bash
+docker compose up -d
+```
